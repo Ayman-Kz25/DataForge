@@ -9,6 +9,8 @@ dist/
 */dist/
 .env
 */.env
+*.env
+atlas-credentials.env
 !.env.example
 !*/.env.example
 *.log
