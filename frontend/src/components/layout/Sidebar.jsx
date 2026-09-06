@@ -1,4 +1,4 @@
-﻿import { useEffect } from 'react'
+import { useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   X, LayoutDashboard, FolderOpen, Upload, FileText,
@@ -26,39 +26,37 @@ export function Sidebar({ isOpen, onClose, datasetId }) {
   }, [onClose])
 
   useEffect(() => {
-    if (isOpen) document.body.style.overflow = 'hidden'
+    if (isOpen && window.innerWidth < 1024) document.body.style.overflow = 'hidden'
     else document.body.style.overflow = ''
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
   return (
     <>
+      {/* Overlay - only on mobile/tablet */}
       <div
         className={cn(
-          'fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] transition-opacity duration-200',
+          'fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] transition-opacity duration-200 lg:hidden',
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         )}
         onClick={onClose}
       />
 
+      {/* Sidebar panel */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-50 h-full w-72 flex flex-col',
+          'fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] w-64 flex flex-col',
           'bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800',
-          'shadow-xl transition-transform duration-200 ease-out',
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+          'transition-transform duration-200 ease-out',
+          // Always visible on lg screens; drawer toggle on mobile
+          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
-        <div className="flex items-center justify-between px-4 h-16 border-b border-gray-100 dark:border-gray-800 shrink-0">
-          <div className="flex items-center gap-2 font-bold text-lg text-gray-900 dark:text-gray-100">
-            <div className="h-7 w-7 rounded-lg bg-indigo-600 flex items-center justify-center">
-              <span className="text-white text-xs font-black">DF</span>
-            </div>
-            DataForge
-          </div>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800 lg:hidden shrink-0">
+          <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Navigation</span>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <X className="h-5 w-5 text-gray-500" />
           </button>
