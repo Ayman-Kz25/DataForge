@@ -1,0 +1,1 @@
+﻿export default function AnomalyDetection() { return <div className="p-6"><h1 className="text-2xl font-bold">Anomaly Detection</h1><p className="text-gray-500 mt-2">Isolation Forest anomaly detection (Phase 6)</p></div> }

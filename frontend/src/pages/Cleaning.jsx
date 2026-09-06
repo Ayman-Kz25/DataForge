@@ -1,0 +1,1 @@
+﻿export default function Cleaning() { return <div className="p-6"><h1 className="text-2xl font-bold">Data Cleaning</h1><p className="text-gray-500 mt-2">Auto & Manual cleaning pipeline (Phase 7)</p></div> }

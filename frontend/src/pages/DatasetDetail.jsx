@@ -1,0 +1,1 @@
+﻿export default function DatasetDetail() { return <div className="p-6"><h1 className="text-2xl font-bold">Dataset Detail</h1><p className="text-gray-500 mt-2">Dataset overview hub (Phase 3)</p></div> }

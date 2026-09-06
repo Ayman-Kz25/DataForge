@@ -1,0 +1,1 @@
+﻿export default function UserManagement() { return <div className="p-6"><h1 className="text-2xl font-bold">User Management</h1><p className="text-gray-500 mt-2">Activate/Deactivate user accounts (Phase 12)</p></div> }
