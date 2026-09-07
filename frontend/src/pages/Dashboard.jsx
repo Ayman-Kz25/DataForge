@@ -1,8 +1,9 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Upload, FolderOpen, BarChart2, Database } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { LoadingScreen } from '@/components/ui/spinner'
 import { useAuthStore } from '@/store/authStore'
 import { datasetService } from '@/services/api'
@@ -34,7 +35,7 @@ export default function Dashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Welcome back, {user?.name?.split(' ')[0] || 'User'} ??
+            Welcome back, {user?.name?.split(' ')[0] || 'User'} 👋
           </h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Overview of your datasets and quality evaluations.
@@ -90,11 +91,19 @@ export default function Dashboard() {
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{ds.originalName}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(ds.createdAt)}</p>
                   </div>
-                  <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${
-                    ds.status === 'completed' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
-                    ds.status === 'error' ? 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
-                    'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
-                  }`}>{ds.status}</span>
+                  <Badge
+                    variant={
+                      ds.status === 'completed'
+                        ? 'success'
+                        : ds.status === 'error'
+                        ? 'danger'
+                        : ds.status === 'uploaded'
+                        ? 'info'
+                        : 'warning'
+                    }
+                  >
+                    {ds.status}
+                  </Badge>
                 </div>
               ))}
             </div>
