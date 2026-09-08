@@ -6,6 +6,7 @@ const connectDatabase = async () => {
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
       dbName: 'dataforge',
     });
+
     logger.info(`MongoDB connected: ${conn.connection.host}`);
   } catch (error) {
     logger.error(`MongoDB connection error: ${error.message}`);
