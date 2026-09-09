@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const datasetSchema = new mongoose.Schema({
+const datasetSchema = new Schema({
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'User',
     required: true,
     index: true,
@@ -54,4 +54,4 @@ const datasetSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-module.exports = mongoose.model('Dataset', datasetSchema);
+export default model('Dataset', datasetSchema);

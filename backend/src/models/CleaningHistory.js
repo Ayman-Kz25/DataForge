@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const cleaningOperationSchema = new mongoose.Schema({
+export const cleaningOperationSchema = new Schema({
   step: Number,
   type: {
     type: String,
@@ -14,15 +14,15 @@ const cleaningOperationSchema = new mongoose.Schema({
   description: String,
 }, { _id: false });
 
-const cleaningHistorySchema = new mongoose.Schema({
+const cleaningHistorySchema = new Schema({
   datasetId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'Dataset',
     required: true,
     index: true,
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
@@ -34,6 +34,8 @@ const cleaningHistorySchema = new mongoose.Schema({
   operations: [cleaningOperationSchema],
   cleanedCloudinaryUrl: String,
   cleanedPublicId: String,
+  cleanedFileB64: String,
+  previewRows: { type: Schema.Types.Mixed, default: null },
   rowsBefore: Number,
   rowsAfter: Number,
   qualityScoreBefore: Number,
@@ -43,4 +45,4 @@ const cleaningHistorySchema = new mongoose.Schema({
   timestamps: true,
 });
 
-module.exports = mongoose.model('CleaningHistory', cleaningHistorySchema);
+export default model('CleaningHistory', cleaningHistorySchema);

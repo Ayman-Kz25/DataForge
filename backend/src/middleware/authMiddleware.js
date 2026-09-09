@@ -1,9 +1,10 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const { sendError } = require('../utils/apiResponse');
-const asyncHandler = require('../utils/asyncHandler');
+import pkg from 'jsonwebtoken';
+const { verify } = pkg;
+import User from '../models/User.js';
+import { sendError } from '../utils/apiResponse.js';
+import asyncHandler from '../utils/asyncHandler.js';
 
-exports.protect = asyncHandler(async (req, res, next) => {
+export const protect = asyncHandler(async (req, res, next) => {
   let token;
 
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
@@ -15,7 +16,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    const decoded = verify(token, process.env.JWT_ACCESS_SECRET);
     const user = await User.findById(decoded.id);
 
     if (!user) {

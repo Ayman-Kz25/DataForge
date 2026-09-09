@@ -1,5 +1,5 @@
-const cloudinary = require('cloudinary').v2;
-const logger = require('../utils/logger');
+import { v2 as cloudinary } from 'cloudinary';
+import logger from '../utils/logger.js';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -9,4 +9,4 @@ cloudinary.config({
 
 logger.info('Cloudinary configured');
 
-module.exports = cloudinary;
+export default cloudinary;

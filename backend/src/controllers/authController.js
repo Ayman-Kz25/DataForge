@@ -1,12 +1,13 @@
-const jwt = require('jsonwebtoken');
+import pkg from 'jsonwebtoken';
+const { sign, verify } = pkg;
 
-const User = require('../models/User');
-const asyncHandler = require('../utils/asyncHandler');
-const { sendSuccess, sendError } = require('../utils/apiResponse');
-const logger = require('../utils/logger');
+import User from '../models/User.js';
+import asyncHandler from '../utils/asyncHandler.js';
+import { sendSuccess, sendError } from '../utils/apiResponse.js';
+import logger from '../utils/logger.js';
 
 const generateTokens = (userId) => {
-  const accessToken = jwt.sign(
+  const accessToken = sign(
     { id: userId },
     process.env.JWT_ACCESS_SECRET || 'default_secret',
     {
@@ -14,7 +15,7 @@ const generateTokens = (userId) => {
     }
   );
 
-  const refreshToken = jwt.sign(
+  const refreshToken = sign(
     { id: userId },
     process.env.JWT_REFRESH_SECRET || 'default_refresh',
     {
@@ -25,7 +26,7 @@ const generateTokens = (userId) => {
   return { accessToken, refreshToken };
 };
 
-exports.register = asyncHandler(async (req, res) => {
+export const register = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
@@ -81,7 +82,7 @@ exports.register = asyncHandler(async (req, res) => {
   );
 });
 
-exports.login = asyncHandler(async (req, res) => {
+export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -138,7 +139,7 @@ exports.login = asyncHandler(async (req, res) => {
   );
 });
 
-exports.logout = asyncHandler(async (req, res) => {
+export const logout = asyncHandler(async (req, res) => {
   if (req.user) {
     await User.findByIdAndUpdate(req.user._id, {
       refreshToken: null,
@@ -152,11 +153,11 @@ exports.logout = asyncHandler(async (req, res) => {
   );
 });
 
-exports.getMe = asyncHandler(async (req, res) => {
+export const getMe = asyncHandler(async (req, res) => {
   return sendSuccess(res, req.user);
 });
 
-exports.refreshToken = asyncHandler(async (req, res) => {
+export const refreshToken = asyncHandler(async (req, res) => {
   const { refreshToken } = req.body;
 
   if (!refreshToken) {
@@ -168,7 +169,7 @@ exports.refreshToken = asyncHandler(async (req, res) => {
   }
 
   try {
-    const decoded = jwt.verify(
+    const decoded = verify(
       refreshToken,
       process.env.JWT_REFRESH_SECRET || 'default_refresh'
     );

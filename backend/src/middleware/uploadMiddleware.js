@@ -1,5 +1,5 @@
-const multer = require('multer');
-const path = require('path');
+import multer, { memoryStorage } from 'multer';
+import { extname } from 'path';
 
 const MAX_FILE_SIZE = (parseInt(process.env.MAX_FILE_SIZE_MB, 10) || 50) * 1024 * 1024;
 
@@ -12,10 +12,10 @@ const ALLOWED_MIMETYPES = [
 
 const ALLOWED_EXTENSIONS = ['.csv', '.xlsx'];
 
-const storage = multer.memoryStorage();
+const storage = memoryStorage();
 
 const fileFilter = (req, file, cb) => {
-  const ext = path.extname(file.originalname).toLowerCase();
+  const ext = extname(file.originalname).toLowerCase();
   const mimeOk = ALLOWED_MIMETYPES.includes(file.mimetype) || file.mimetype === 'application/octet-stream';
   const extOk = ALLOWED_EXTENSIONS.includes(ext);
 
@@ -26,7 +26,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-exports.upload = multer({
+export const upload = multer({
   storage,
   fileFilter,
   limits: { fileSize: MAX_FILE_SIZE },

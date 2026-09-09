@@ -1,12 +1,12 @@
-const express = require('express');
-const router = express.Router();
-const reportController = require('../controllers/reportController');
-const { protect } = require('../middleware/authMiddleware');
+import { Router } from 'express';
+const router = Router();
+import { generateReport, downloadPdf, downloadExcel } from '../controllers/reportController.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 router.use(protect);
 
-router.post('/:datasetId/generate', reportController.generateReport);
-router.get('/:datasetId/download/pdf', reportController.downloadPdf);
-router.get('/:datasetId/download/excel', reportController.downloadExcel);
+router.post('/:datasetId/generate', generateReport);
+router.get('/:datasetId/download/pdf', downloadPdf);
+router.get('/:datasetId/download/excel', downloadExcel);
 
-module.exports = router;
+export default router;

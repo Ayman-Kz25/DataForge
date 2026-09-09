@@ -1,10 +1,10 @@
-const Dataset = require('../models/Dataset');
-const asyncHandler = require('../utils/asyncHandler');
-const { sendSuccess, sendError } = require('../utils/apiResponse');
-const cloudinaryService = require('../services/cloudinaryService');
-const logger = require('../utils/logger');
+import Dataset from '../models/Dataset.js';
+import asyncHandler from '../utils/asyncHandler.js';
+import { sendSuccess, sendError } from '../utils/apiResponse.js';
+import { uploadFile, deleteFile } from '../services/cloudinaryService.js';
+import logger from '../utils/logger.js';
 
-exports.uploadDataset = asyncHandler(async (req, res) => {
+export const uploadDataset = asyncHandler(async (req, res) => {
   if (!req.file) {
     return sendError(res, 'No file uploaded. Please select a CSV or Excel file.', 400);
   }
@@ -13,7 +13,7 @@ exports.uploadDataset = asyncHandler(async (req, res) => {
   const ext = file.originalname.split('.').pop().toLowerCase();
   const fileType = ext === 'csv' ? 'csv' : 'xlsx';
 
-  const uploadResult = await cloudinaryService.uploadFile(
+  const uploadResult = await uploadFile(
     file.buffer,
     file.originalname,
     req.user._id.toString()
@@ -33,7 +33,7 @@ exports.uploadDataset = asyncHandler(async (req, res) => {
   return sendSuccess(res, dataset, 'Dataset uploaded successfully', 201);
 });
 
-exports.getAllDatasets = asyncHandler(async (req, res) => {
+export const getAllDatasets = asyncHandler(async (req, res) => {
   const datasets = await Dataset.find({ userId: req.user._id })
     .sort({ createdAt: -1 })
     .lean();
@@ -41,7 +41,7 @@ exports.getAllDatasets = asyncHandler(async (req, res) => {
   return sendSuccess(res, datasets);
 });
 
-exports.getDatasetById = asyncHandler(async (req, res) => {
+export const getDatasetById = asyncHandler(async (req, res) => {
   const dataset = await Dataset.findOne({
     _id: req.params.id,
     userId: req.user._id,
@@ -54,7 +54,7 @@ exports.getDatasetById = asyncHandler(async (req, res) => {
   return sendSuccess(res, dataset);
 });
 
-exports.deleteDataset = asyncHandler(async (req, res) => {
+export const deleteDataset = asyncHandler(async (req, res) => {
   const dataset = await Dataset.findOne({
     _id: req.params.id,
     userId: req.user._id,
@@ -65,9 +65,9 @@ exports.deleteDataset = asyncHandler(async (req, res) => {
   }
 
   try {
-    await cloudinaryService.deleteFile(dataset.cloudinaryPublicId);
+    await deleteFile(dataset.cloudinaryPublicId);
   } catch (err) {
-    logger.warn(`Could not delete Cloudinary file: ${dataset.cloudinaryPublicId}`, err);
+    logger.error(`Could not delete Cloudinary file: ${dataset.cloudinaryPublicId}`, err);
   }
 
   await Dataset.findByIdAndDelete(dataset._id);

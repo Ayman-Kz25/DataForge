@@ -1,13 +1,14 @@
-const Dataset = require('../models/Dataset');
-const ProcessingResult = require('../models/ProcessingResult');
-const CleaningHistory = require('../models/CleaningHistory');
-const Report = require('../models/Report');
-const asyncHandler = require('../utils/asyncHandler');
-const { sendSuccess, sendError } = require('../utils/apiResponse');
-const pythonService = require('../services/pythonService');
-const cloudinaryService = require('../services/cloudinaryService');
+import Dataset from '../models/Dataset.js';
+import ProcessingResult from '../models/ProcessingResult.js';
+import CleaningHistory from '../models/CleaningHistory.js';
+import Report from '../models/Report.js';
 
-exports.generateReport = asyncHandler(async (req, res) => {
+import asyncHandler from '../utils/asyncHandler.js';
+import { sendSuccess, sendError } from '../utils/apiResponse.js';
+import { generatePdfReport } from '../services/pythonService.js';
+import { uploadBuffer } from '../services/cloudinaryService.js';
+
+export const generateReport = asyncHandler(async (req, res) => {
   const dataset = await Dataset.findOne({ _id: req.params.datasetId, userId: req.user._id });
   if (!dataset) return sendError(res, 'Dataset not found.', 404);
 
@@ -20,14 +21,14 @@ exports.generateReport = asyncHandler(async (req, res) => {
     return sendError(res, 'Please run validation before generating a report.', 400);
   }
 
-  const pdfBuffer = await pythonService.generatePdfReport({
+  const pdfBuffer = await generatePdfReport({
     dataset: { name: dataset.originalName, rows: dataset.rowCount, columns: dataset.columnCount, fileSize: dataset.fileSize, createdAt: dataset.createdAt },
     processingResult: result,
     cleaningHistory: cleaning,
     userName: req.user.name,
   });
 
-  const uploadResult = await cloudinaryService.uploadBuffer(
+  const uploadResult = await uploadBuffer(
     pdfBuffer,
     `${dataset.originalName.replace(/\.[^.]+$/, '')}_report.pdf`,
     req.user._id.toString(),
@@ -43,7 +44,7 @@ exports.generateReport = asyncHandler(async (req, res) => {
   return sendSuccess(res, { downloadUrl: report.cloudinaryUrl }, 'Report generated successfully');
 });
 
-exports.downloadPdf = asyncHandler(async (req, res) => {
+export const downloadPdf = asyncHandler(async (req, res) => {
   const dataset = await Dataset.findOne({ _id: req.params.datasetId, userId: req.user._id });
   if (!dataset) return sendError(res, 'Dataset not found.', 404);
 
@@ -53,7 +54,7 @@ exports.downloadPdf = asyncHandler(async (req, res) => {
   return sendSuccess(res, { downloadUrl: report.cloudinaryUrl });
 });
 
-exports.downloadExcel = asyncHandler(async (req, res) => {
+export const downloadExcel = asyncHandler(async (req, res) => {
   const dataset = await Dataset.findOne({ _id: req.params.datasetId, userId: req.user._id });
   if (!dataset) return sendError(res, 'Dataset not found.', 404);
 

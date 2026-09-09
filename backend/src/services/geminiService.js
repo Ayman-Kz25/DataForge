@@ -1,5 +1,5 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const logger = require('../utils/logger');
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import logger from '../utils/logger.js';
 
 let genAI;
 
@@ -36,7 +36,7 @@ Provide your response as a JSON object with these exact keys:
 Respond with ONLY the JSON object, no other text.`;
 };
 
-exports.generateInsights = async ({ datasetName, rows, columns, qualityScore, validationResult, anomalyResult }) => {
+export async function generateInsights({ datasetName, rows, columns, qualityScore, validationResult, anomalyResult }) {
   try {
     const client = getClient();
     const model = client.getGenerativeModel({ model: 'gemini-1.5-flash' });
@@ -86,4 +86,4 @@ exports.generateInsights = async ({ datasetName, rows, columns, qualityScore, va
       cleaningExplanation: 'Please review the cleaning operations log for details.',
     };
   }
-};
+}

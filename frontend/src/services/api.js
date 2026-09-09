@@ -1,4 +1,4 @@
-﻿import axios from 'axios'
+import axios from 'axios'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
@@ -71,6 +71,7 @@ export const processingService = {
   profile: (datasetId) => api.post(`/processing/${datasetId}/profile`),
   validate: (datasetId) => api.post(`/processing/${datasetId}/validate`),
   detectAnomalies: (datasetId) => api.post(`/processing/${datasetId}/anomalies`),
+  clean: (datasetId, options) => api.post(`/processing/${datasetId}/clean`, options),
   getResults: (datasetId) => api.get(`/processing/${datasetId}/results`),
   getComparison: (datasetId) => api.get(`/processing/${datasetId}/comparison`),
 }

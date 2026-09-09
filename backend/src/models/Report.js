@@ -1,14 +1,14 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const reportSchema = new mongoose.Schema({
+const reportSchema = new Schema({
   datasetId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'Dataset',
     required: true,
     index: true,
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
@@ -23,4 +23,4 @@ const reportSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-module.exports = mongoose.model('Report', reportSchema);
+export default model('Report', reportSchema);

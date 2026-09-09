@@ -1,13 +1,13 @@
-const logger = require('../utils/logger');
-const { sendError } = require('../utils/apiResponse');
+import {sendError} from "../utils/apiResponse.js"
+import logger from '../utils/logger.js';
 
-exports.notFound = (req, res, next) => {
+export function notFound(req, res, next) {
   const error = new Error(`Route not found: ${req.originalUrl}`);
   error.statusCode = 404;
   next(error);
-};
+}
 
-exports.errorHandler = (err, req, res, next) => {
+export function errorHandler(err, req, res, next) {
   let statusCode = err.statusCode || err.status || 500;
   let message = err.message || 'An unexpected error occurred';
 
@@ -37,4 +37,4 @@ exports.errorHandler = (err, req, res, next) => {
   }
 
   return sendError(res, message, statusCode);
-};
+}

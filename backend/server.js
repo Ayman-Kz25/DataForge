@@ -1,19 +1,19 @@
-require('dotenv').config();
+import { configDotenv } from 'dotenv';
 
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const connectDatabase = require('./src/config/database');
-const logger = require('./src/utils/logger');
-const { generalLimiter } = require('./src/middleware/rateLimitMiddleware');
-const { notFound, errorHandler } = require('./src/middleware/errorMiddleware');
+import express, { json, urlencoded } from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import connectDatabase from './src/config/database.js';
+import logger from './src/utils/logger.js';
+import { generalLimiter } from './src/middleware/rateLimitMiddleware.js';
+import { notFound, errorHandler } from './src/middleware/errorMiddleware.js';
 
-const authRoutes = require('./src/routes/authRoutes');
-const datasetRoutes = require('./src/routes/datasetRoutes');
-const processingRoutes = require('./src/routes/processingRoutes');
-const insightsRoutes = require('./src/routes/insightsRoutes');
-const reportRoutes = require('./src/routes/reportRoutes');
-const adminRoutes = require('./src/routes/adminRoutes');
+import authRoutes from './src/routes/authRoutes.js';
+import datasetRoutes from './src/routes/datasetRoutes.js';
+import processingRoutes from './src/routes/processingRoutes.js';
+import insightsRoutes from './src/routes/insightsRoutes.js';
+import reportRoutes from './src/routes/reportRoutes.js';
+import adminRoutes from './src/routes/adminRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -27,8 +27,8 @@ app.use(cors({
 }));
 
 app.use('/api', generalLimiter);
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(json({ limit: '10mb' }));
+app.use(urlencoded({ extended: true, limit: '10mb' }));
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'DataForge API', timestamp: new Date().toISOString() });
@@ -48,7 +48,7 @@ const startServer = async () => {
   await connectDatabase();
   app.listen(PORT, () => {
     logger.info(`DataForge API running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-    logger.info(`Health check: http://localhost:${PORT}/health`);
+    logger.error(`Health check: http://localhost:${PORT}/health`);
   });
 };
 

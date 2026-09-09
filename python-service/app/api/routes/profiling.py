@@ -10,7 +10,8 @@ router = APIRouter()
 async def profile_endpoint(payload: DatasetInput):
     try:
         df = load_dataframe_from_url(payload.cloudinaryUrl, payload.fileType)
-        result = profile_dataset(df)
+        result = profile_dataset(
+            df)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

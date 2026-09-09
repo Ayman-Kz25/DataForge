@@ -1,7 +1,7 @@
-const cloudinary = require('../config/cloudinary');
-const { Readable } = require('stream');
+import { Readable } from 'stream';
+import cloudinary from '../config/cloudinary.js';
 
-exports.uploadFile = (buffer, originalName, userId) => {
+export function uploadFile(buffer, originalName, userId) {
   return new Promise((resolve, reject) => {
     const publicId = `dataforge/datasets/${userId}/${Date.now()}_${originalName.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
     const stream = cloudinary.uploader.upload_stream(
@@ -14,9 +14,9 @@ exports.uploadFile = (buffer, originalName, userId) => {
     const readable = Readable.from(buffer);
     readable.pipe(stream);
   });
-};
+}
 
-exports.uploadBuffer = (buffer, fileName, userId, resourceType = 'raw') => {
+export function uploadBuffer(buffer, fileName, userId, resourceType = 'raw') {
   return new Promise((resolve, reject) => {
     const publicId = `dataforge/reports/${userId}/${Date.now()}_${fileName.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
     const stream = cloudinary.uploader.upload_stream(
@@ -29,8 +29,8 @@ exports.uploadBuffer = (buffer, fileName, userId, resourceType = 'raw') => {
     const readable = Readable.from(buffer);
     readable.pipe(stream);
   });
-};
+}
 
-exports.deleteFile = (publicId) => {
+export function deleteFile(publicId) {
   return cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
-};
+}

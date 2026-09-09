@@ -51,11 +51,20 @@ export default function ValidationResults() {
 
       try {
         const resultsRes = await processingService.getResults(id)
-        if (resultsRes.data.data?.validationResult) {
-          setResults(resultsRes.data.data)
+        const doc = resultsRes.data.data
+        // Normalize shape to match the runValidation response structure
+        if (doc?.validationResult) {
+          setResults({
+            validationResult: doc.validationResult,
+            qualityScore: doc.qualityScore,
+            anomalyResult: doc.anomalyResult,
+          })
         }
-      } catch (_) {
-        // Not validated yet
+      } catch (err) {
+        // 404 = not validated yet — silent; other errors surface
+        if (err.response?.status !== 404) {
+          setError(err.response?.data?.message || 'Failed to load validation results.')
+        }
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load validation details.')
@@ -143,7 +152,7 @@ export default function ValidationResults() {
             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Overall Quality Score</p>
             <div className="mt-2 flex items-baseline justify-center gap-1">
               <span className="text-6xl font-black text-gray-900 dark:text-gray-100">
-                {qualityScore.overall}
+                {Math.round(qualityScore.overall)}
               </span>
               <span className="text-gray-400 text-lg font-medium">/100</span>
             </div>

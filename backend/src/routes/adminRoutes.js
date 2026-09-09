@@ -1,14 +1,14 @@
-const express = require('express');
-const router = express.Router();
-const adminController = require('../controllers/adminController');
-const { protect } = require('../middleware/authMiddleware');
-const { requireAdmin } = require('../middleware/roleMiddleware');
+import { Router } from 'express';
+const router = Router();
+import { getUsers, updateUserStatus, getSystemStats, getSuspiciousAlerts } from '../controllers/adminController.js';
+import { protect } from '../middleware/authMiddleware.js';
+import { requireAdmin } from '../middleware/roleMiddleware.js';
 
 router.use(protect, requireAdmin);
 
-router.get('/users', adminController.getUsers);
-router.patch('/users/:id/status', adminController.updateUserStatus);
-router.get('/stats', adminController.getSystemStats);
-router.get('/alerts', adminController.getSuspiciousAlerts);
+router.get('/users', getUsers);
+router.patch('/users/:id/status', updateUserStatus);
+router.get('/stats', getSystemStats);
+router.get('/alerts', getSuspiciousAlerts);
 
-module.exports = router;
+export default router;

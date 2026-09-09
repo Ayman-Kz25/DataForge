@@ -1,14 +1,14 @@
-const axios = require('axios');
-const logger = require('../utils/logger');
+import logger from '../utils/logger.js';
+import {create} from "axios";
 
 const PYTHON_URL = process.env.PYTHON_SERVICE_URL || 'http://localhost:8000';
 
-const pythonClient = axios.create({
+const pythonClient = create({
   baseURL: PYTHON_URL,
   timeout: 300000,
 });
 
-exports.profile = async (payload) => {
+export async function profile(payload) {
   try {
     const { data } = await pythonClient.post('/profile', payload);
     return data;
@@ -16,9 +16,9 @@ exports.profile = async (payload) => {
     logger.error(`Python profiling error: ${err.message}`);
     throw new Error('Data profiling failed. Please try again.');
   }
-};
+}
 
-exports.validate = async (payload) => {
+export async function validate(payload) {
   try {
     const { data } = await pythonClient.post('/validate', payload);
     return data;
@@ -26,9 +26,9 @@ exports.validate = async (payload) => {
     logger.error(`Python validation error: ${err.message}`);
     throw new Error('Data validation failed. Please try again.');
   }
-};
+}
 
-exports.detectAnomalies = async (payload) => {
+export async function detectAnomalies(payload) {
   try {
     const { data } = await pythonClient.post('/anomalies', payload);
     return data;
@@ -36,9 +36,9 @@ exports.detectAnomalies = async (payload) => {
     logger.error(`Python anomaly detection error: ${err.message}`);
     throw new Error('Anomaly detection failed. Please try again.');
   }
-};
+}
 
-exports.clean = async (payload) => {
+export async function clean(payload) {
   try {
     const { data } = await pythonClient.post('/clean', payload);
     return data;
@@ -46,9 +46,9 @@ exports.clean = async (payload) => {
     logger.error(`Python cleaning error: ${err.message}`);
     throw new Error('Data cleaning failed. Please try again.');
   }
-};
+}
 
-exports.generateAnalytics = async (payload) => {
+export async function generateAnalytics(payload) {
   try {
     const { data } = await pythonClient.post('/analytics', payload);
     return data;
@@ -56,9 +56,9 @@ exports.generateAnalytics = async (payload) => {
     logger.error(`Python analytics error: ${err.message}`);
     throw new Error('Analytics generation failed. Please try again.');
   }
-};
+}
 
-exports.generatePdfReport = async (payload) => {
+export async function generatePdfReport(payload) {
   try {
     const { data } = await pythonClient.post('/reports/pdf', payload, {
       responseType: 'arraybuffer'
@@ -68,4 +68,4 @@ exports.generatePdfReport = async (payload) => {
     logger.error(`Python PDF generation error: ${err.message}`);
     throw new Error('Report generation failed. Please try again.');
   }
-};
+}

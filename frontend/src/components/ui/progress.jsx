@@ -46,7 +46,7 @@ export function ScoreBar({ value = 0, max = 100, label, showValue = true }) {
       </div>
       {showValue && (
         <span className="text-sm font-mono font-medium text-gray-700 dark:text-gray-300 w-16 text-right">
-          {value}/{max}
+          {Math.round(value)}/{max}
         </span>
       )}
     </div>

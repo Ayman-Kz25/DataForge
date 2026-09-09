@@ -1,23 +1,23 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const processingResultSchema = new mongoose.Schema({
+const processingResultSchema = new Schema({
   datasetId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'Dataset',
     required: true,
     index: true,
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
   profilingResult: {
-    type: mongoose.Schema.Types.Mixed,
+    type: Schema.Types.Mixed,
     default: null,
   },
   validationResult: {
-    checks: [mongoose.Schema.Types.Mixed],
+    checks: [Schema.Types.Mixed],
     totalIssues: Number,
   },
   qualityScore: {
@@ -34,21 +34,21 @@ const processingResultSchema = new mongoose.Schema({
     anomalyCount: Number,
     anomalyPercentage: Number,
     affectedRows: [Number],
-    columnScores: mongoose.Schema.Types.Mixed,
+    columnScores: Schema.Types.Mixed,
   },
   analyticsData: {
-    type: mongoose.Schema.Types.Mixed,
+    type: Schema.Types.Mixed,
     default: null,
   },
   aiInsights: {
     summary: String,
     qualityExplanation: String,
     cleaningExplanation: String,
-    chartExplanations: mongoose.Schema.Types.Mixed,
+    chartExplanations: Schema.Types.Mixed,
     generatedAt: Date,
   },
 }, {
   timestamps: true,
 });
 
-module.exports = mongoose.model('ProcessingResult', processingResultSchema);
+export default model('ProcessingResult', processingResultSchema);

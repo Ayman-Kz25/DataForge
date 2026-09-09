@@ -1,4 +1,4 @@
-﻿import pandas as pd
+import pandas as pd
 import numpy as np
 from scipy import stats
 from app.utils.stat_helpers import safe_float, compute_iqr_bounds, compute_zscore_outliers
@@ -16,7 +16,7 @@ def run_all_checks(df: pd.DataFrame) -> dict:
     checks.append({
         "id": "missing_values",
         "name": "Missing Values",
-        "status": "pass" if total_missing == 0 else ("warning" if missing_pct < 5 else "error"),
+        "status": "pass" if total_missing == 0 else ("warning" if missing_pct < 5 else "fail"),
         "severity": "high",
         "summary": f"{total_missing} missing values ({missing_pct}%) across {len(affected_cols)} column(s)" if total_missing > 0 else "No missing values found",
         "details": {
@@ -32,7 +32,7 @@ def run_all_checks(df: pd.DataFrame) -> dict:
     checks.append({
         "id": "duplicate_rows",
         "name": "Duplicate Rows",
-        "status": "pass" if dup_count == 0 else ("warning" if dup_pct < 2 else "error"),
+        "status": "pass" if dup_count == 0 else ("warning" if dup_pct < 2 else "fail"),
         "severity": "high",
         "summary": f"{dup_count} duplicate row(s) found ({dup_pct}%)" if dup_count > 0 else "No duplicate rows found",
         "details": {"duplicateCount": dup_count, "duplicatePercentage": dup_pct}
@@ -79,7 +79,7 @@ def run_all_checks(df: pd.DataFrame) -> dict:
     checks.append({
         "id": "empty_columns",
         "name": "Empty Columns",
-        "status": "pass" if not empty_cols else "error",
+        "status": "pass" if not empty_cols else "fail",
         "severity": "high",
         "summary": f"{len(empty_cols)} completely empty column(s) found" if empty_cols else "No empty columns found",
         "details": {"emptyColumns": empty_cols}
@@ -166,7 +166,7 @@ def run_all_checks(df: pd.DataFrame) -> dict:
     checks.append({
         "id": "invalid_ranges",
         "name": "Invalid Value Ranges",
-        "status": "pass" if not range_issues else "error",
+        "status": "pass" if not range_issues else "fail",
         "severity": "high",
         "summary": f"{len(range_issues)} invalid range issue(s) found" if range_issues else "No invalid ranges detected",
         "details": {"issues": range_issues}
@@ -255,7 +255,7 @@ def run_all_checks(df: pd.DataFrame) -> dict:
         "details": {"highCorrelationPairs": high_corr_pairs}
     })
     
-    total_issues = sum(1 for c in checks if c["status"] in ('warning', 'error'))
+    total_issues = sum(1 for c in checks if c["status"] in ('warning', 'fail'))
     
     return {
         "checks": checks,

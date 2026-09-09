@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const logger = require('../utils/logger');
+import mongoose from 'mongoose';
+import logger from '../utils/logger.js';
 
 const connectDatabase = async () => {
   try {
@@ -17,4 +17,4 @@ mongoose.connection.on('disconnected', () => {
   logger.warn('MongoDB disconnected');
 });
 
-module.exports = connectDatabase;
+export default connectDatabase;

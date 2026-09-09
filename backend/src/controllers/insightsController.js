@@ -1,10 +1,10 @@
-const ProcessingResult = require('../models/ProcessingResult');
-const Dataset = require('../models/Dataset');
-const asyncHandler = require('../utils/asyncHandler');
-const { sendSuccess, sendError } = require('../utils/apiResponse');
-const geminiService = require('../services/geminiService');
+import ProcessingResult from '../models/ProcessingResult.js';
+import Dataset from '../models/Dataset.js';
+import asyncHandler from '../utils/asyncHandler.js';
+import { sendSuccess, sendError } from '../utils/apiResponse.js';
+import { generateInsights as generateInsightsService } from '../services/geminiService.js';
 
-exports.generateInsights = asyncHandler(async (req, res) => {
+export const generateInsights = asyncHandler(async (req, res) => {
   const dataset = await Dataset.findOne({ _id: req.params.datasetId, userId: req.user._id });
   if (!dataset) return sendError(res, 'Dataset not found.', 404);
 
@@ -13,7 +13,7 @@ exports.generateInsights = asyncHandler(async (req, res) => {
     return sendError(res, 'Please run validation before generating insights.', 400);
   }
 
-  const insights = await geminiService.generateInsights({
+  const insights = await generateInsightsService({
     datasetName: dataset.originalName,
     rows: dataset.rowCount,
     columns: dataset.columnCount,
@@ -30,7 +30,7 @@ exports.generateInsights = asyncHandler(async (req, res) => {
   return sendSuccess(res, insights, 'AI insights generated');
 });
 
-exports.getInsights = asyncHandler(async (req, res) => {
+export const getInsights = asyncHandler(async (req, res) => {
   const dataset = await Dataset.findOne({ _id: req.params.datasetId, userId: req.user._id });
   if (!dataset) return sendError(res, 'Dataset not found.', 404);
 

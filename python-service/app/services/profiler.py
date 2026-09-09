@@ -1,4 +1,4 @@
-﻿import pandas as pd
+import pandas as pd
 import numpy as np
 from app.utils.type_detector import detect_column_semantic_type
 from app.utils.stat_helpers import safe_float
@@ -48,16 +48,26 @@ def profile_dataset(df: pd.DataFrame) -> dict:
         columns_profile.append(col_info)
     
     memory_mb = safe_float(df.memory_usage(deep=True).sum() / (1024 * 1024))
-    
+
+    # Dataset-level missing percentage (any cell missing / total cells)
+    total_cells = df.shape[0] * df.shape[1]
+    total_missing = int(df.isnull().sum().sum())
+    missing_pct = safe_float((total_missing / total_cells * 100) if total_cells > 0 else 0)
+
+    # Duplicate rows
+    duplicate_rows = int(df.duplicated().sum())
+
     dtype_counts = {}
     for col in df.columns:
         t = detect_column_semantic_type(df[col])
         dtype_counts[t] = dtype_counts.get(t, 0) + 1
-    
+
     return {
         "rowCount": int(df.shape[0]),
         "columnCount": int(df.shape[1]),
         "memoryUsageMB": memory_mb,
+        "missingPercentage": missing_pct,
+        "duplicateRows": duplicate_rows,
         "columnNames": [str(c) for c in df.columns],
         "dtypeCounts": dtype_counts,
         "columns": columns_profile,

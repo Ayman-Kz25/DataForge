@@ -1,14 +1,15 @@
-const express = require('express');
-const router = express.Router();
-const processingController = require('../controllers/processingController');
-const { protect } = require('../middleware/authMiddleware');
+import { Router } from 'express';
+const router = Router();
+import { profileDataset, validateDataset, detectAnomalies, cleanDataset, getResults, getComparison } from '../controllers/processingController.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 router.use(protect);
 
-router.post('/:datasetId/profile', processingController.profileDataset);
-router.post('/:datasetId/validate', processingController.validateDataset);
-router.post('/:datasetId/anomalies', processingController.detectAnomalies);
-router.get('/:datasetId/results', processingController.getResults);
-router.get('/:datasetId/comparison', processingController.getComparison);
+router.post('/:datasetId/profile', profileDataset);
+router.post('/:datasetId/validate', validateDataset);
+router.post('/:datasetId/anomalies', detectAnomalies);
+router.post('/:datasetId/clean', cleanDataset);
+router.get('/:datasetId/results', getResults);
+router.get('/:datasetId/comparison', getComparison);
 
-module.exports = router;
+export default router;

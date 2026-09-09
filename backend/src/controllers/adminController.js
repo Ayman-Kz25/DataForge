@@ -1,14 +1,14 @@
-const User = require('../models/User');
-const Dataset = require('../models/Dataset');
-const asyncHandler = require('../utils/asyncHandler');
-const { sendSuccess, sendError } = require('../utils/apiResponse');
+import User from '../models/User.js';
+import Dataset from '../models/Dataset.js';
+import asyncHandler from '../utils/asyncHandler.js';
+import { sendSuccess, sendError } from '../utils/apiResponse.js';
 
-exports.getUsers = asyncHandler(async (req, res) => {
-  const users = await User.find().sort({ createdAt: -1 }).lean();
+export const getUsers = asyncHandler(async (req, res) => {
+  const users = await find().sort({ createdAt: -1 }).lean();
   return sendSuccess(res, users);
 });
 
-exports.updateUserStatus = asyncHandler(async (req, res) => {
+export const updateUserStatus = asyncHandler(async (req, res) => {
   const { isActive } = req.body;
   if (typeof isActive !== 'boolean') {
     return sendError(res, 'isActive must be a boolean value.', 400);
@@ -31,7 +31,7 @@ exports.updateUserStatus = asyncHandler(async (req, res) => {
   return sendSuccess(res, user, `User ${isActive ? 'activated' : 'deactivated'} successfully`);
 });
 
-exports.getSystemStats = asyncHandler(async (req, res) => {
+export const getSystemStats = asyncHandler(async (req, res) => {
   const [totalUsers, totalDatasets, suspiciousDatasets, activeUsers] = await Promise.all([
     User.countDocuments(),
     Dataset.countDocuments(),
@@ -47,7 +47,7 @@ exports.getSystemStats = asyncHandler(async (req, res) => {
   });
 });
 
-exports.getSuspiciousAlerts = asyncHandler(async (req, res) => {
+export const getSuspiciousAlerts = asyncHandler(async (req, res) => {
   const alerts = await Dataset.find({ isSuspicious: true })
     .populate('userId', 'name email')
     .sort({ createdAt: -1 })

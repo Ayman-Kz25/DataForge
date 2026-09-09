@@ -1,11 +1,11 @@
-const express = require('express');
-const router = express.Router();
-const insightsController = require('../controllers/insightsController');
-const { protect } = require('../middleware/authMiddleware');
+import { Router } from 'express';
+const router = Router();
+import { generateInsights, getInsights } from '../controllers/insightsController.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 router.use(protect);
 
-router.post('/:datasetId/generate', insightsController.generateInsights);
-router.get('/:datasetId', insightsController.getInsights);
+router.post('/:datasetId/generate', generateInsights);
+router.get('/:datasetId', getInsights);
 
-module.exports = router;
+export default router;

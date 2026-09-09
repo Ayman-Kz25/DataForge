@@ -1,14 +1,14 @@
-const express = require('express');
-const router = express.Router();
-const datasetController = require('../controllers/datasetController');
-const { protect } = require('../middleware/authMiddleware');
-const { upload } = require('../middleware/uploadMiddleware');
+import { Router } from 'express';
+const router = Router();
+import { uploadDataset, getAllDatasets, getDatasetById, deleteDataset } from '../controllers/datasetController.js';
+import { protect } from '../middleware/authMiddleware.js';
+import { upload } from '../middleware/uploadMiddleware.js';
 
 router.use(protect);
 
-router.post('/upload', upload.single('file'), datasetController.uploadDataset);
-router.get('/', datasetController.getAllDatasets);
-router.get('/:id', datasetController.getDatasetById);
-router.delete('/:id', datasetController.deleteDataset);
+router.post('/upload', upload.single('file'), uploadDataset);
+router.get('/', getAllDatasets);
+router.get('/:id', getDatasetById);
+router.delete('/:id', deleteDataset);
 
-module.exports = router;
+export default router;
