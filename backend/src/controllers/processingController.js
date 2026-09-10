@@ -1,7 +1,6 @@
 import Dataset from "../models/Dataset.js";
 import ProcessingResult from "../models/ProcessingResult.js";
 import CleaningHistory from "../models/CleaningHistory.js";
-import { cleaningOperationSchema } from "../models/CleaningHistory.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { sendSuccess, sendError } from "../utils/apiResponse.js";
 
@@ -21,8 +20,15 @@ const getDatasetForUser = async (datasetId, userId) => {
   });
 };
 
+/* ============================================================
+   PROFILE
+============================================================ */
+
 export const profileDataset = asyncHandler(async (req, res) => {
-  const dataset = await getDatasetForUser(req.params.datasetId, req.user._id);
+  const dataset = await getDatasetForUser(
+    req.params.datasetId,
+    req.user._id
+  );
 
   if (!dataset) {
     return sendError(res, "Dataset not found.", 404);
@@ -43,7 +49,9 @@ export const profileDataset = asyncHandler(async (req, res) => {
     status: "uploaded",
   });
 
-  await Dataset.findOneAndUpdate(
+  // IMPORTANT:
+  // datasetId belongs to ProcessingResult, NOT Dataset.
+  await ProcessingResult.findOneAndUpdate(
     {
       datasetId: dataset._id,
     },
@@ -57,16 +65,29 @@ export const profileDataset = asyncHandler(async (req, res) => {
     {
       upsert: true,
       new: true,
-    },
+    }
   );
 
-  logger.info(`Profiling complete for dataset ${dataset._id}`);
+  logger.info(
+    `Profiling complete for dataset ${dataset._id}`
+  );
 
-  return sendSuccess(res, result, "Profiling complete");
+  return sendSuccess(
+    res,
+    result,
+    "Profiling complete"
+  );
 });
 
+/* ============================================================
+   VALIDATION
+============================================================ */
+
 export const validateDataset = asyncHandler(async (req, res) => {
-  const dataset = await getDatasetForUser(req.params.datasetId, req.user._id);
+  const dataset = await getDatasetForUser(
+    req.params.datasetId,
+    req.user._id
+  );
 
   if (!dataset) {
     return sendError(res, "Dataset not found.", 404);
@@ -90,7 +111,9 @@ export const validateDataset = asyncHandler(async (req, res) => {
     isSuspicious,
   });
 
-  await Dataset.findOneAndUpdate(
+  // IMPORTANT:
+  // Save processing data to ProcessingResult.
+  await ProcessingResult.findOneAndUpdate(
     {
       datasetId: dataset._id,
     },
@@ -106,16 +129,29 @@ export const validateDataset = asyncHandler(async (req, res) => {
     {
       upsert: true,
       new: true,
-    },
+    }
   );
 
-  info(`Validation complete for dataset ${dataset._id}`);
+  logger.info(
+    `Validation complete for dataset ${dataset._id}`
+  );
 
-  return sendSuccess(res, result, "Validation complete");
+  return sendSuccess(
+    res,
+    result,
+    "Validation complete"
+  );
 });
 
+/* ============================================================
+   ANOMALY DETECTION
+============================================================ */
+
 export const detectAnomalies = asyncHandler(async (req, res) => {
-  const dataset = await getDatasetForUser(req.params.datasetId, req.user._id);
+  const dataset = await getDatasetForUser(
+    req.params.datasetId,
+    req.user._id
+  );
 
   if (!dataset) {
     return sendError(res, "Dataset not found.", 404);
@@ -126,26 +162,43 @@ export const detectAnomalies = asyncHandler(async (req, res) => {
     fileType: dataset.fileType,
   });
 
-  await Dataset.findOneAndUpdate(
+  await ProcessingResult.findOneAndUpdate(
     {
       datasetId: dataset._id,
     },
     {
       $set: {
+        datasetId: dataset._id,
+        userId: req.user._id,
         anomalyResult: result,
       },
     },
     {
       upsert: true,
       new: true,
-    },
+    }
   );
 
-  return sendSuccess(res, result, "Anomaly detection complete");
+  logger.info(
+    `Anomaly detection complete for dataset ${dataset._id}`
+  );
+
+  return sendSuccess(
+    res,
+    result,
+    "Anomaly detection complete"
+  );
 });
 
+/* ============================================================
+   CLEANING
+============================================================ */
+
 export const cleanDataset = asyncHandler(async (req, res) => {
-  const dataset = await getDatasetForUser(req.params.datasetId, req.user._id);
+  const dataset = await getDatasetForUser(
+    req.params.datasetId,
+    req.user._id
+  );
 
   if (!dataset) {
     return sendError(res, "Dataset not found.", 404);
@@ -161,26 +214,25 @@ export const cleanDataset = asyncHandler(async (req, res) => {
   const result = await clean({
     cloudinaryUrl: dataset.cloudinaryUrl,
     fileType: dataset.fileType,
-
     options: {
       mode,
-
-      missingNumericStrategy: options.missingNumericStrategy || "median",
-
-      missingCatStrategy: options.missingCatStrategy || "mode",
-
-      handleDuplicates: options.handleDuplicates !== false,
-
-      handleOutliers: options.handleOutliers !== false,
-
-      outlierStrategy: options.outlierStrategy || "winsorize",
-
-      handleFormats: options.handleFormats !== false,
+      missingNumericStrategy:
+        options.missingNumericStrategy || "median",
+      missingCatStrategy:
+        options.missingCatStrategy || "mode",
+      handleDuplicates:
+        options.handleDuplicates !== false,
+      handleOutliers:
+        options.handleOutliers !== false,
+      outlierStrategy:
+        options.outlierStrategy || "winsorize",
+      handleFormats:
+        options.handleFormats !== false,
     },
   });
 
-  // Save cleaning history to MongoDB
-  await CleaningHistory(
+  // Save cleaning history.
+  await CleaningHistory.findOneAndUpdate(
     {
       datasetId: dataset._id,
     },
@@ -200,15 +252,15 @@ export const cleanDataset = asyncHandler(async (req, res) => {
     {
       upsert: true,
       new: true,
-    },
+    }
   );
 
   await Dataset.findByIdAndUpdate(dataset._id, {
     status: "completed",
   });
 
-  info(
-    `Cleaning complete for dataset ${dataset._id}: ${result.operations.length} operations`,
+  logger.info(
+    `Cleaning complete for dataset ${dataset._id}: ${result.operations.length} operations`
   );
 
   return sendSuccess(
@@ -220,41 +272,57 @@ export const cleanDataset = asyncHandler(async (req, res) => {
       cleanedFileB64: result.cleanedFileB64,
       previewRows: result.previewRows,
     },
-    "Cleaning complete",
+    "Cleaning complete"
   );
 });
 
+/* ============================================================
+   GET PROCESSING RESULTS
+============================================================ */
+
 export const getResults = asyncHandler(async (req, res) => {
-  const dataset = await getDatasetForUser(req.params.datasetId, req.user._id);
+  const dataset = await getDatasetForUser(
+    req.params.datasetId,
+    req.user._id
+  );
 
   if (!dataset) {
     return sendError(res, "Dataset not found.", 404);
   }
 
-  const result = await ProcessingResult.find({
+  const result = await ProcessingResult.findOne({
     datasetId: dataset._id,
+    userId: req.user._id,
   }).lean();
 
   if (!result) {
     return sendError(
       res,
       "No processing results found. Run analysis first.",
-      404,
+      404
     );
   }
 
   return sendSuccess(res, result);
 });
 
+/* ============================================================
+   GET CLEANING COMPARISON
+============================================================ */
+
 export const getComparison = asyncHandler(async (req, res) => {
-  const dataset = await getDatasetForUser(req.params.datasetId, req.user._id);
+  const dataset = await getDatasetForUser(
+    req.params.datasetId,
+    req.user._id
+  );
 
   if (!dataset) {
     return sendError(res, "Dataset not found.", 404);
   }
 
-  const cleaning = await cleaningOperationSchema({
+  const cleaning = await CleaningHistory.findOne({
     datasetId: dataset._id,
+    userId: req.user._id,
   })
     .sort({
       createdAt: -1,
@@ -265,7 +333,7 @@ export const getComparison = asyncHandler(async (req, res) => {
     return sendError(
       res,
       "No cleaning history found. Run cleaning first.",
-      404,
+      404
     );
   }
 

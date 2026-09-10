@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowRight,
   BarChart3,
@@ -10,129 +10,122 @@ import {
   RefreshCw,
   ShieldCheck,
   TriangleAlert,
-} from 'lucide-react'
+} from "lucide-react";
 
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Alert } from '@/components/ui/alert'
-import { LoadingScreen } from '@/components/ui/spinner'
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert } from "@/components/ui/alert";
+import { LoadingScreen } from "@/components/ui/spinner";
 
-import {
-  processingService,
-  datasetService,
-} from '@/services/api'
+import { processingService, datasetService } from "@/services/api";
 
-import {
-  formatNumber,
-  formatPercent,
-} from '@/utils/formatters'
+import { formatNumber, formatPercent } from "@/utils/formatters";
 
 export default function DataProfile() {
-  const { id } = useParams()
-  const navigate = useNavigate()
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  const [dataset, setDataset] = useState(null)
-  const [profile, setProfile] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isProfiling, setIsProfiling] = useState(false)
-  const [error, setError] = useState(null)
+  const [dataset, setDataset] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isProfiling, setIsProfiling] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    loadData()
-  }, [id])
+    loadData();
+  }, [id]);
 
   const loadData = async () => {
     try {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
-      const datasetRes = await datasetService.getById(id)
-      setDataset(datasetRes.data?.data || null)
+      const datasetRes = await datasetService.getById(id);
+      setDataset(datasetRes.data?.data || null);
 
       try {
-        const resultsRes = await processingService.getResults(id)
-        const profilingResult =
-          resultsRes.data?.data?.profilingResult ?? null
+        const resultsRes = await processingService.getResults(id);
+        const profilingResult = resultsRes.data?.data?.profilingResult ?? null;
 
         if (import.meta.env.DEV) {
-          console.debug('[DataProfile] loaded profilingResult:', profilingResult)
+          console.debug(
+            "[DataProfile] loaded profilingResult:",
+            profilingResult,
+          );
         }
 
-        setProfile(profilingResult)
+        setProfile(profilingResult);
       } catch (err) {
         // 404 = no results yet — expected, stay silent
         if (err.response?.status !== 404) {
           setError(
-            err.response?.data?.message ||
-              'Failed to load profiling results.'
-          )
+            err.response?.data?.message || "Failed to load profiling results.",
+          );
         }
-        setProfile(null)
+        setProfile(null);
       }
     } catch (err) {
       setError(
-        err.response?.data?.message ||
-          'Failed to load dataset details.'
-      )
+        err.response?.data?.message || "Failed to load dataset details.",
+      );
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const runProfiling = async () => {
     try {
-      setIsProfiling(true)
-      setError(null)
+      setIsProfiling(true);
+      setError(null);
 
-      const res = await processingService.profile(id)
-      const profileData = res.data?.data ?? null
+      const res = await processingService.profile(id);
+      const profileData = res.data?.data ?? null;
 
       if (import.meta.env.DEV) {
-        console.debug('[DataProfile] runProfiling result:', profileData)
-        console.debug('[DataProfile] columns:', profileData?.columns)
+        console.debug("[DataProfile] runProfiling result:", profileData);
+        console.debug("[DataProfile] columns:", profileData?.columns);
       }
 
-      setProfile(profileData)
+      setProfile(profileData);
     } catch (err) {
       setError(
-        err.response?.data?.message ||
-          'Profiling failed. Please try again.'
-      )
+        err.response?.data?.message || "Profiling failed. Please try again.",
+      );
     } finally {
-      setIsProfiling(false)
+      setIsProfiling(false);
     }
-  }
+  };
 
-  const columns = profile?.columns || []
+  const columns = profile?.columns || [];
 
   const profileSummary = useMemo(() => {
-    if (!profile) return null
+    if (!profile) return null;
 
     const missingColumns = columns.filter(
-      (column) => Number(column.missingPercentage || 0) > 0
-    ).length
+      (column) => Number(column.missingPercentage || 0) > 0,
+    ).length;
 
     const numericColumns = columns.filter(
-      (column) => column.semanticType === 'numeric'
-    ).length
+      (column) => column.semanticType === "numeric",
+    ).length;
 
     const idColumns = columns.filter(
-      (column) => column.semanticType === 'id'
-    ).length
+      (column) => column.semanticType === "id",
+    ).length;
 
     return {
       missingColumns,
       numericColumns,
       idColumns,
-    }
-  }, [profile, columns])
+    };
+  }, [profile, columns]);
 
   if (isLoading) {
     return (
       <div className="h-full min-h-0">
         <LoadingScreen message="Loading data profile..." />
       </div>
-    )
+    );
   }
 
   return (
@@ -255,17 +248,13 @@ export default function DataProfile() {
                   "
                   title={dataset?.originalName}
                 >
-                  {dataset?.originalName || 'Dataset Profile'}
+                  {dataset?.originalName || "Dataset Profile"}
                 </h1>
               </div>
 
               <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                 <span>
-                  {formatNumber(
-                    profile?.rowCount ||
-                      dataset?.rowCount ||
-                      0
-                  )}{' '}
+                  {formatNumber(profile?.rowCount || dataset?.rowCount || 0)}{" "}
                   rows
                 </span>
 
@@ -276,16 +265,14 @@ export default function DataProfile() {
                     profile?.columnCount ||
                       dataset?.columnCount ||
                       columns.length ||
-                      0
-                  )}{' '}
+                      0,
+                  )}{" "}
                   columns
                 </span>
 
                 <span className="h-1 w-1 rounded-full bg-border-strong" />
 
-                <span className="font-mono text-[10px]">
-                  {id}
-                </span>
+                <span className="font-mono text-[10px]">{id}</span>
               </div>
             </div>
 
@@ -297,24 +284,18 @@ export default function DataProfile() {
                 className="h-9 gap-2 rounded-lg"
               >
                 <RefreshCw
-                  className={`h-3.5 w-3.5 ${
-                    isProfiling ? 'animate-spin' : ''
-                  }`}
+                  className={`h-3.5 w-3.5 ${isProfiling ? "animate-spin" : ""}`}
                 />
 
                 {isProfiling
-                  ? 'Profiling...'
+                  ? "Profiling..."
                   : profile
-                    ? 'Re-profile'
-                    : 'Run profile'}
+                    ? "Re-profile"
+                    : "Run profile"}
               </Button>
 
               <Button
-                onClick={() =>
-                  navigate(
-                    `/datasets/${id}/validation`
-                  )
-                }
+                onClick={() => navigate(`/datasets/${id}/validation`)}
                 className="h-9 gap-2 rounded-lg"
               >
                 <ShieldCheck className="h-3.5 w-3.5" />
@@ -331,10 +312,7 @@ export default function DataProfile() {
 
         {error && (
           <div className="mt-4 shrink-0">
-            <Alert
-              variant="danger"
-              onDismiss={() => setError(null)}
-            >
+            <Alert variant="danger" onDismiss={() => setError(null)}>
               <div className="flex items-start gap-2.5">
                 <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
                 <span>{error}</span>
@@ -387,13 +365,11 @@ export default function DataProfile() {
               <Metric
                 icon={FileSpreadsheet}
                 label="Missing data"
-                value={formatPercent(
-                  profile.missingPercentage
-                )}
+                value={formatPercent(profile.missingPercentage)}
                 tone={
                   Number(profile.missingPercentage || 0) > 0
-                    ? 'warning'
-                    : 'success'
+                    ? "warning"
+                    : "success"
                 }
                 bordered
               />
@@ -401,13 +377,9 @@ export default function DataProfile() {
               <Metric
                 icon={CheckCircle2}
                 label="Duplicate rows"
-                value={formatNumber(
-                  profile.duplicateRows || 0
-                )}
+                value={formatNumber(profile.duplicateRows || 0)}
                 tone={
-                  Number(profile.duplicateRows || 0) > 0
-                    ? 'warning'
-                    : 'success'
+                  Number(profile.duplicateRows || 0) > 0 ? "warning" : "success"
                 }
                 bordered
               />
@@ -433,14 +405,10 @@ export default function DataProfile() {
                 value={profileSummary.missingColumns}
                 description={
                   profileSummary.missingColumns === 0
-                    ? 'No missing-value columns detected'
-                    : 'Review these columns before validation'
+                    ? "No missing-value columns detected"
+                    : "Review these columns before validation"
                 }
-                tone={
-                  profileSummary.missingColumns > 0
-                    ? 'warning'
-                    : 'success'
-                }
+                tone={profileSummary.missingColumns > 0 ? "warning" : "success"}
               />
 
               <SummaryItem
@@ -496,9 +464,7 @@ export default function DataProfile() {
                   <div className="flex items-center gap-2">
                     <BarChart3 className="h-4 w-4 text-primary" />
 
-                    <h2 className="text-sm font-bold">
-                      Column diagnostics
-                    </h2>
+                    <h2 className="text-sm font-bold">Column diagnostics</h2>
 
                     <span
                       className="
@@ -517,8 +483,8 @@ export default function DataProfile() {
                   </div>
 
                   <p className="mt-1 text-[11px] text-muted-foreground">
-                    Structure, completeness, uniqueness, and
-                    statistical characteristics for each column.
+                    Structure, completeness, uniqueness, and statistical
+                    characteristics for each column.
                   </p>
                 </div>
 
@@ -547,10 +513,7 @@ export default function DataProfile() {
                 "
               >
                 <span className="text-[10px] text-muted-foreground">
-                  {columns.length}{' '}
-                  {columns.length === 1
-                    ? 'column'
-                    : 'columns'}{' '}
+                  {columns.length} {columns.length === 1 ? "column" : "columns"}{" "}
                   analyzed
                 </span>
 
@@ -563,7 +526,7 @@ export default function DataProfile() {
         )}
       </main>
     </div>
-  )
+  );
 }
 
 /* ============================================================
@@ -574,14 +537,14 @@ function Metric({
   icon: Icon,
   label,
   value,
-  tone = 'default',
+  tone = "default",
   bordered = false,
 }) {
   const toneClass = {
-    default: 'text-primary bg-primary-soft',
-    warning: 'text-warning bg-warning/10',
-    success: 'text-success bg-success/10',
-  }
+    default: "text-primary bg-primary-soft",
+    warning: "text-warning bg-warning/10",
+    success: "text-success bg-success/10",
+  };
 
   return (
     <div
@@ -592,7 +555,7 @@ function Metric({
         px-4
         py-3.5
         sm:px-5
-        ${bordered ? 'border-l border-border' : ''}
+        ${bordered ? "border-l border-border" : ""}
       `}
     >
       <div
@@ -620,25 +583,20 @@ function Metric({
         </p>
       </div>
     </div>
-  )
+  );
 }
 
 /* ============================================================
    SUMMARY ITEM
 ============================================================ */
 
-function SummaryItem({
-  label,
-  value,
-  description,
-  tone = 'default',
-}) {
+function SummaryItem({ label, value, description, tone = "default" }) {
   const valueClass =
-    tone === 'warning'
-      ? 'text-warning'
-      : tone === 'success'
-        ? 'text-success'
-        : 'text-foreground'
+    tone === "warning"
+      ? "text-warning"
+      : tone === "success"
+        ? "text-success"
+        : "text-foreground";
 
   return (
     <div
@@ -672,11 +630,9 @@ function SummaryItem({
         </span>
       </div>
 
-      <p className="mt-1 text-[10px] text-muted-foreground">
-        {description}
-      </p>
+      <p className="mt-1 text-[10px] text-muted-foreground">{description}</p>
     </div>
-  )
+  );
 }
 
 /* ============================================================
@@ -699,7 +655,7 @@ function ColumnTable({ columns }) {
           </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -719,14 +675,11 @@ function ColumnTable({ columns }) {
 
       <tbody>
         {columns.map((column) => (
-          <ColumnRow
-            key={column.name}
-            column={column}
-          />
+          <ColumnRow key={column.name} column={column} />
         ))}
       </tbody>
     </table>
-  )
+  );
 }
 
 /* ============================================================
@@ -734,16 +687,14 @@ function ColumnTable({ columns }) {
 ============================================================ */
 
 function ColumnRow({ column }) {
-  const missingPercentage = Number(
-    column.missingPercentage || 0
-  )
+  const missingPercentage = Number(column.missingPercentage || 0);
 
   const semanticTone =
-    column.semanticType === 'numeric'
-      ? 'info'
-      : column.semanticType === 'id'
-        ? 'default'
-        : 'primary'
+    column.semanticType === "numeric"
+      ? "info"
+      : column.semanticType === "id"
+        ? "default"
+        : "primary";
 
   return (
     <tr
@@ -772,9 +723,7 @@ function ColumnRow({ column }) {
             {column.name}
           </p>
 
-          <p className="mt-0.5 text-[10px] text-muted">
-            Column
-          </p>
+          <p className="mt-0.5 text-[10px] text-muted">Column</p>
         </div>
       </td>
 
@@ -796,16 +745,14 @@ function ColumnRow({ column }) {
             text-muted-foreground
           "
         >
-          {column.dtype || 'unknown'}
+          {column.dtype || "unknown"}
         </span>
       </td>
 
       {/* Semantic */}
 
       <td className="px-4 py-3.5 sm:px-5">
-        <Badge variant={semanticTone}>
-          {column.semanticType || 'unknown'}
-        </Badge>
+        <Badge variant={semanticTone}>{column.semanticType || "unknown"}</Badge>
       </td>
 
       {/* Missing */}
@@ -819,20 +766,14 @@ function ColumnRow({ column }) {
                 text-xs
                 font-medium
                 tabular-nums
-                ${
-                  missingPercentage > 0
-                    ? 'text-warning'
-                    : 'text-success'
-                }
+                ${missingPercentage > 0 ? "text-warning" : "text-success"}
               `}
             >
               {formatPercent(missingPercentage)}
             </span>
 
             <span className="text-[10px] text-muted">
-              {formatNumber(
-                column.missingCount || 0
-              )}
+              {formatNumber(column.missingCount || 0)}
             </span>
           </div>
 
@@ -845,10 +786,7 @@ function ColumnRow({ column }) {
                 transition-all
               "
               style={{
-                width: `${Math.min(
-                  missingPercentage,
-                  100
-                )}%`,
+                width: `${Math.min(missingPercentage, 100)}%`,
               }}
             />
           </div>
@@ -860,15 +798,11 @@ function ColumnRow({ column }) {
       <td className="px-4 py-3.5 sm:px-5">
         <div>
           <p className="font-mono text-xs tabular-nums">
-            {formatNumber(
-              column.uniqueCount || 0
-            )}
+            {formatNumber(column.uniqueCount || 0)}
           </p>
 
           <p className="mt-0.5 text-[10px] text-muted">
-            {formatPercent(
-              column.uniquePercentage
-            )}
+            {formatPercent(column.uniquePercentage)}
           </p>
         </div>
       </td>
@@ -876,53 +810,38 @@ function ColumnRow({ column }) {
       {/* Min / Max */}
 
       <td className="px-4 py-3.5 sm:px-5">
-        <StatPair
-          first={column.min}
-          second={column.max}
-        />
+        <StatPair first={column.min} second={column.max} />
       </td>
 
       {/* Mean / Median */}
 
       <td className="px-4 py-3.5 sm:px-5">
-        {column.mean !== undefined &&
-        column.mean !== null ? (
+        {column.mean !== undefined && column.mean !== null ? (
           <div className="font-mono text-[11px] tabular-nums text-muted-foreground">
-            <span>
-              {Number(column.mean).toFixed(2)}
-            </span>
+            <span>{Number(column.mean).toFixed(2)}</span>
 
-            <span className="mx-1 text-muted">
-              /
-            </span>
+            <span className="mx-1 text-muted">/</span>
 
-            <span>
-              {column.median ?? 'N/A'}
-            </span>
+            <span>{column.median ?? "N/A"}</span>
           </div>
         ) : (
-          <span className="text-xs text-muted">
-            N/A
-          </span>
+          <span className="text-xs text-muted">N/A</span>
         )}
       </td>
 
       {/* Std dev */}
 
       <td className="px-4 py-3.5 sm:px-5">
-        {column.std !== undefined &&
-        column.std !== null ? (
+        {column.std !== undefined && column.std !== null ? (
           <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
             {Number(column.std).toFixed(2)}
           </span>
         ) : (
-          <span className="text-xs text-muted">
-            N/A
-          </span>
+          <span className="text-xs text-muted">N/A</span>
         )}
       </td>
     </tr>
-  )
+  );
 }
 
 /* ============================================================
@@ -936,24 +855,18 @@ function StatPair({ first, second }) {
     second === undefined ||
     second === null
   ) {
-    return (
-      <span className="text-xs text-muted">
-        N/A
-      </span>
-    )
+    return <span className="text-xs text-muted">N/A</span>;
   }
 
   return (
     <div className="font-mono text-[11px] tabular-nums text-muted-foreground">
       <span>{formatStatValue(first)}</span>
 
-      <span className="mx-1 text-muted">
-        /
-      </span>
+      <span className="mx-1 text-muted">/</span>
 
       <span>{formatStatValue(second)}</span>
     </div>
-  )
+  );
 }
 
 /* ============================================================
@@ -977,17 +890,14 @@ function TableHeading({ children }) {
     >
       {children}
     </th>
-  )
+  );
 }
 
 /* ============================================================
    EMPTY STATE
 ============================================================ */
 
-function ProfileEmptyState({
-  isProfiling,
-  onRunProfile,
-}) {
+function ProfileEmptyState({ isProfiling, onRunProfile }) {
   return (
     <section
       className="
@@ -1048,9 +958,8 @@ function ProfileEmptyState({
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Run the profiler to inspect column types,
-            missing values, uniqueness, and statistical
-            properties before validation.
+            Run the profiler to inspect column types, missing values,
+            uniqueness, and statistical properties before validation.
           </p>
         </div>
 
@@ -1060,18 +969,14 @@ function ProfileEmptyState({
           className="mt-6 gap-2 rounded-xl"
         >
           <RefreshCw
-            className={`h-4 w-4 ${
-              isProfiling ? 'animate-spin' : ''
-            }`}
+            className={`h-4 w-4 ${isProfiling ? "animate-spin" : ""}`}
           />
 
-          {isProfiling
-            ? 'Profiling dataset...'
-            : 'Run profile'}
+          {isProfiling ? "Profiling dataset..." : "Run profile"}
         </Button>
       </div>
     </section>
-  )
+  );
 }
 
 /* ============================================================
@@ -1079,11 +984,9 @@ function ProfileEmptyState({
 ============================================================ */
 
 function formatStatValue(value) {
-  if (typeof value === 'number') {
-    return Number.isInteger(value)
-      ? formatNumber(value)
-      : value.toFixed(2)
+  if (typeof value === "number") {
+    return Number.isInteger(value) ? formatNumber(value) : value.toFixed(2);
   }
 
-  return String(value)
+  return String(value);
 }

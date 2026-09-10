@@ -9,3 +9,6 @@ npm run dev
 Python Services:
 cd python-service
 .\venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+JWT Token Regenerate:
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
